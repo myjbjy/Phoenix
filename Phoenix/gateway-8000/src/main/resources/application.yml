@@ -1,0 +1,11 @@
+server:
+  port: 8000
+  tomcat:
+    uri-encoding: UTF-8
+    max-swallow-size: -1
+
+spring:
+  application:
+    name: gateway
+  profiles:
+    active: dev

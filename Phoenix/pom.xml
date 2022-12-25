@@ -18,6 +18,8 @@
     <modules>
         <module>service-user-7001</module>
         <module>phoenix-common</module>
+        <module>gateway-8000</module>
+        <module>phoenix-pojo</module>
     </modules>
 
     <properties>
