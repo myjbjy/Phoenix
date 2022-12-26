@@ -20,6 +20,7 @@
         <module>phoenix-common</module>
         <module>gateway-8000</module>
         <module>phoenix-pojo</module>
+        <module>phoenix-api</module>
     </modules>
 
     <properties>
