@@ -21,6 +21,7 @@
         <module>gateway-8000</module>
         <module>phoenix-pojo</module>
         <module>phoenix-api</module>
+        <module>auth-service-8111</module>
     </modules>
 
     <properties>

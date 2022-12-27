@@ -1,11 +1,11 @@
 server:
-  port: 7001
+  port: 8111
   tomcat:
     uri-encoding: UTF-8
     max-swallow-size: -1
 spring:
   application:
-    name: user-service
+    name: auth-service
   profiles:
     active: dev
 #  banner:
