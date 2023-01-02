@@ -1,6 +1,8 @@
 package com.myjbjy.api.intercept;
 
 import com.myjbjy.base.BaseInfoProperties;
+import com.myjbjy.exceptions.GraceException;
+import com.myjbjy.grace.result.ResponseStatusEnum;
 import com.myjbjy.utils.IPUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -20,6 +22,7 @@ public class SMSInterceptor extends BaseInfoProperties implements HandlerInterce
         // 获得用于判断的boolean
         if (redis.keyIsExist(MOBILE_SMSCODE + ":" + userIp)){
             log.error("短信发送频率太高了~~！！！");
+            GraceException.display(ResponseStatusEnum.SMS_NEED_WAIT_ERROR);
             return false;
         }
         return true;

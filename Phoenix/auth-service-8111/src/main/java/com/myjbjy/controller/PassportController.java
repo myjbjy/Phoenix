@@ -1,6 +1,7 @@
 package com.myjbjy.controller;
 
 import com.myjbjy.base.BaseInfoProperties;
+import com.myjbjy.exceptions.GraceException;
 import com.myjbjy.grace.result.GraceJSONResult;
 import com.myjbjy.service.UsersService;
 import com.myjbjy.utils.IPUtil;
