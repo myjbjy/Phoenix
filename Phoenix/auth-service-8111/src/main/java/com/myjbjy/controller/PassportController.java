@@ -6,19 +6,19 @@ import com.myjbjy.grace.result.GraceJSONResult;
 import com.myjbjy.grace.result.ResponseStatusEnum;
 import com.myjbjy.pojo.Users;
 import com.myjbjy.pojo.bo.RegisterLoginBO;
+import com.myjbjy.pojo.vo.UsersVO;
 import com.myjbjy.service.UsersService;
 import com.myjbjy.utils.IPUtil;
 import com.myjbjy.utils.SMSUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("passport")
@@ -73,11 +73,24 @@ public class PassportController extends BaseInfoProperties {
         }
 
         // 3. 保存用户token，分布式会话到redis中
+        String uToken = TOKEN_USER_PREFIX + SYMBOL_DOT + UUID.randomUUID().toString();
+        redis.set(REDIS_USER_TOKEN + ":" + user.getId(), uToken);
 
         // 4. 用户登录注册以后，删除redis中的短信验证码
         redis.del(MOBILE_SMSCODE + ":" + mobile);
 
+        UsersVO usersVO = new UsersVO();
+        BeanUtils.copyProperties(user, usersVO);
+        usersVO.setUserToken(uToken);
+
         // 5. 返回用户的信息给前端
+        return GraceJSONResult.ok(usersVO);
+    }
+
+    @PostMapping("logout")
+    public GraceJSONResult logout(@RequestParam String userId) {
+        // 后端只需要清除用户的token信息即可，前端也需要清除相关的用户信息
+        redis.del(REDIS_USER_TOKEN + ":" + userId);
         return GraceJSONResult.ok();
     }
 }
