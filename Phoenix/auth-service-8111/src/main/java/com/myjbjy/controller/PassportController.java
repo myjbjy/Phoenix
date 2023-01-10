@@ -3,6 +3,7 @@ package com.myjbjy.controller;
 import com.myjbjy.base.BaseInfoProperties;
 import com.myjbjy.exceptions.GraceException;
 import com.myjbjy.grace.result.GraceJSONResult;
+import com.myjbjy.pojo.bo.RegisterLoginBO;
 import com.myjbjy.service.UsersService;
 import com.myjbjy.utils.IPUtil;
 import com.myjbjy.utils.SMSUtils;
@@ -10,10 +11,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("passport")
@@ -45,6 +48,15 @@ public class PassportController extends BaseInfoProperties {
 
         // 把验证码存入到redis，用于后续的注册登录进行校验
         redis.set(MOBILE_SMSCODE + ":" + mobile, code, 30 * 60);
+
+        return GraceJSONResult.ok();
+    }
+
+    @PostMapping("login")
+    public GraceJSONResult login(@Valid @RequestBody RegisterLoginBO registerLoginBO,
+                                      HttpServletRequest request) throws Exception {
+        String mobile = registerLoginBO.getMobile();
+        String code = registerLoginBO.getSmsCode();
 
         return GraceJSONResult.ok();
     }
