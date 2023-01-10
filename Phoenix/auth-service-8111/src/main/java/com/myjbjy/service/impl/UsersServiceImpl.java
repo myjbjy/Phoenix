@@ -2,9 +2,12 @@ package com.myjbjy.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.myjbjy.enums.Sex;
+import com.myjbjy.enums.ShowWhichName;
 import com.myjbjy.mapper.UsersMapper;
 import com.myjbjy.pojo.Users;
 import com.myjbjy.service.UsersService;
+import com.myjbjy.utils.DesensitizationUtil;
 import com.myjbjy.utils.LocalDateUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,23 +35,19 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     @Override
     public Users queryMobileIsExist(String mobile) {
 
-        Users user = usersMapper.selectOne(new QueryWrapper<Users>()
+        return usersMapper.selectOne(new QueryWrapper<Users>()
                 .eq("mobile", mobile));
-
-        return user;
     }
 
     @Autowired
     public RabbitTemplate rabbitTemplate;
 
-    @Transactional
+    @Transactional(rollbackForClassName = {"Users"})
     @Override
     public Users createUsersAndInitResumeMQ(String mobile) {
 
         // 创建用户
-        Users user = createUsers(mobile);
-
-        return user;
+        return createUsers(mobile);
     }
 
     @Transactional
@@ -59,7 +58,11 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         Users user = new Users();
 
         user.setMobile(mobile);
+        user.setNickname("用户" + DesensitizationUtil.commonDisplay(mobile));
+        user.setRealName("用户" + DesensitizationUtil.commonDisplay(mobile));
+        user.setShowWhichName(ShowWhichName.nickname.type);
 
+        user.setSex(Sex.secret.type);
         user.setFace(USER_FACE1);
         user.setEmail("");
 

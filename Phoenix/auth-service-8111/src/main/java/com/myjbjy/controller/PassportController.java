@@ -3,6 +3,8 @@ package com.myjbjy.controller;
 import com.myjbjy.base.BaseInfoProperties;
 import com.myjbjy.exceptions.GraceException;
 import com.myjbjy.grace.result.GraceJSONResult;
+import com.myjbjy.grace.result.ResponseStatusEnum;
+import com.myjbjy.pojo.Users;
 import com.myjbjy.pojo.bo.RegisterLoginBO;
 import com.myjbjy.service.UsersService;
 import com.myjbjy.utils.IPUtil;
@@ -42,7 +44,7 @@ public class PassportController extends BaseInfoProperties {
         // 限制用户只能在60s以内获得一次验证码
         redis.setnx60s(MOBILE_SMSCODE + ":" + userIp, mobile);
 
-        String code = (int)((Math.random() * 9 + 1) * 100000) + "";
+        String code = (int) ((Math.random() * 9 + 1) * 100000) + "";
         smsUtils.sendSMS(mobile, code);
         log.info("验证码为：{}", code);
 
@@ -54,10 +56,28 @@ public class PassportController extends BaseInfoProperties {
 
     @PostMapping("login")
     public GraceJSONResult login(@Valid @RequestBody RegisterLoginBO registerLoginBO,
-                                      HttpServletRequest request) throws Exception {
+                                 HttpServletRequest request) throws Exception {
         String mobile = registerLoginBO.getMobile();
         String code = registerLoginBO.getSmsCode();
 
+        // 1. 从redis中获得验证码进行校验判断是否匹配
+        String redisCode = redis.get(MOBILE_SMSCODE + ":" + mobile);
+        if (StringUtils.isBlank(redisCode) || !redisCode.equalsIgnoreCase(code)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.SMS_CODE_ERROR);
+        }
+        // 2. 根据mobile查询数据库，判断用户是否存在
+        Users user = usersService.queryMobileIsExist(mobile);
+        if (user == null) {
+            // 2.1 如果查询的用户为空，则表示没有注册过，则需要注册信息入库
+            user = usersService.createUsers(mobile);
+        }
+
+        // 3. 保存用户token，分布式会话到redis中
+
+        // 4. 用户登录注册以后，删除redis中的短信验证码
+        redis.del(MOBILE_SMSCODE + ":" + mobile);
+
+        // 5. 返回用户的信息给前端
         return GraceJSONResult.ok();
     }
 }

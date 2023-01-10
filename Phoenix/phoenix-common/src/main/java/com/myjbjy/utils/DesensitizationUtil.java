@@ -7,6 +7,7 @@ package com.myjbjy.utils;
  *      手机号
  *      邮箱
  *      地址等
+ * @author myj
  */
 public class DesensitizationUtil {
 
