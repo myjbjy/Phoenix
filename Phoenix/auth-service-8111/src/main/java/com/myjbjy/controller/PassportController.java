@@ -1,5 +1,6 @@
 package com.myjbjy.controller;
 
+import com.google.gson.Gson;
 import com.myjbjy.base.BaseInfoProperties;
 import com.myjbjy.exceptions.GraceException;
 import com.myjbjy.grace.result.GraceJSONResult;
@@ -9,6 +10,7 @@ import com.myjbjy.pojo.bo.RegisterLoginBO;
 import com.myjbjy.pojo.vo.UsersVO;
 import com.myjbjy.service.UsersService;
 import com.myjbjy.utils.IPUtil;
+import com.myjbjy.utils.JWTUtils;
 import com.myjbjy.utils.SMSUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -16,6 +18,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.UUID;
@@ -25,10 +28,13 @@ import java.util.UUID;
 @Slf4j
 public class PassportController extends BaseInfoProperties {
 
-    @Autowired
+    @Resource
     private SMSUtils smsUtils;
 
-    @Autowired
+    @Resource
+    private JWTUtils jwtUtils;
+
+    @Resource
     private UsersService usersService;
 
     @PostMapping("getSMSCode")
@@ -73,15 +79,16 @@ public class PassportController extends BaseInfoProperties {
         }
 
         // 3. 保存用户token，分布式会话到redis中
-        String uToken = TOKEN_USER_PREFIX + SYMBOL_DOT + UUID.randomUUID().toString();
-        redis.set(REDIS_USER_TOKEN + ":" + user.getId(), uToken);
+        String jwt = jwtUtils.createJWTWithPrefix(new Gson().toJson(user),
+                (long) (1000),
+                TOKEN_USER_PREFIX);
 
         // 4. 用户登录注册以后，删除redis中的短信验证码
         redis.del(MOBILE_SMSCODE + ":" + mobile);
 
         UsersVO usersVO = new UsersVO();
         BeanUtils.copyProperties(user, usersVO);
-        usersVO.setUserToken(uToken);
+        usersVO.setUserToken(jwt);
 
         // 5. 返回用户的信息给前端
         return GraceJSONResult.ok(usersVO);
