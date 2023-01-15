@@ -2,6 +2,9 @@ package com.myjbjy.utils;
 
 import com.myjbjy.exceptions.GraceException;
 import com.myjbjy.grace.result.ResponseStatusEnum;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -75,5 +78,25 @@ public class JWTUtils {
                 .signWith(secretKey)
                 .setExpiration(expireDate)
                 .compact();
+    }
+
+    public String checkJWT(String pendingJWT) {
+
+        String userKey = jwtProperties.getKey();
+
+        // 1. 对秘钥进行base64编码
+        String base64 = new BASE64Encoder().encode(userKey.getBytes());
+
+        // 2. 对base64生成一个秘钥的对象
+        SecretKey secretKey = Keys.hmacShaKeyFor(base64.getBytes());
+
+        // 3. 校验jwt
+        JwtParser jwtParser = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build();       // 构造解析器
+        // 解析成功，可以获得Claims，从而去get相关的数据，如果此处抛出异常，则说明解析不通过，也就是token失效或者被篡改
+        Jws<Claims> jws = jwtParser.parseClaimsJws(pendingJWT);      // 解析jwt
+
+        return jws.getBody().getSubject();
     }
 }

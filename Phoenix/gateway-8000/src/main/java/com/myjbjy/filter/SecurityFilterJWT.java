@@ -3,11 +3,16 @@ package com.myjbjy.filter;
 import com.google.gson.Gson;
 import com.myjbjy.grace.result.GraceJSONResult;
 import com.myjbjy.grace.result.ResponseStatusEnum;
+import com.myjbjy.utils.JWTUtils;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
@@ -27,8 +32,13 @@ import java.util.List;
 @Slf4j
 public class SecurityFilterJWT implements GlobalFilter, Ordered {
 
+    public static final String HEADER_USER_TOKEN = "headerUserToken";
+
     @Resource
     private ExcludeUrlProperties excludeUrlProperties;
+
+    @Resource
+    private JWTUtils jwtUtils;
 
     /**
      * 路径匹配的规则器
@@ -54,6 +64,22 @@ public class SecurityFilterJWT implements GlobalFilter, Ordered {
             }
         }
 
+        // 判断header中是否有token，对用户请求进行判断拦截
+        HttpHeaders headers = exchange.getRequest().getHeaders();
+        String userToken = headers.getFirst(HEADER_USER_TOKEN);
+
+        if (StringUtils.isNotBlank(userToken)){
+            String[] tokenArr = userToken.split(JWTUtils.AT);
+            if (tokenArr.length < 2){
+                return renderErrorMsg(exchange,ResponseStatusEnum.UN_LOGIN);
+            }
+            //获得jwt的令牌与前缀
+            String prefix = tokenArr[0];
+            String jwt = tokenArr[1];
+
+            return dealJWT(jwt, exchange, chain);
+        }
+
         // 到达此处表示被拦截
         log.info("被拦截了。。。");
 
@@ -61,6 +87,19 @@ public class SecurityFilterJWT implements GlobalFilter, Ordered {
 //        GraceException.display(ResponseStatusEnum.UN_LOGIN);
 //        return chain.filter(exchange);
         return renderErrorMsg(exchange,ResponseStatusEnum.UN_LOGIN);
+    }
+
+    public Mono<Void> dealJWT(String jwt, ServerWebExchange exchange, GatewayFilterChain chain){
+        try {
+            String userJson = jwtUtils.checkJWT(jwt);
+            return chain.filter(exchange);
+        } catch (ExpiredJwtException e) {
+            e.printStackTrace();
+            return renderErrorMsg(exchange,ResponseStatusEnum.JWT_EXPIRE_ERROR);
+        }  catch (Exception e) {
+            e.printStackTrace();
+            return renderErrorMsg(exchange,ResponseStatusEnum.JWT_SIGNATURE_ERROR);
+        }
     }
 
     /**

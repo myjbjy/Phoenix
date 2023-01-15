@@ -80,7 +80,7 @@ public class PassportController extends BaseInfoProperties {
 
         // 3. 保存用户token，分布式会话到redis中
         String jwt = jwtUtils.createJWTWithPrefix(new Gson().toJson(user),
-                (long) (1000),
+                (long) (60 * 1000),
                 TOKEN_USER_PREFIX);
 
         // 4. 用户登录注册以后，删除redis中的短信验证码
