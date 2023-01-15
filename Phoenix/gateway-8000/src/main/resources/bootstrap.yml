@@ -1,0 +1,11 @@
+spring:
+  cloud:
+    nacos:
+      config:
+        server-addr: 192.168.244.167
+        file-extension: yml
+        # 本配置可以追加多个nacos的配置文件，如此亏加载多个dataid进行配置的共享
+        extension-configs:
+          - data-id: jwt_config.yml
+            group: DEFAULT_GROUP
+            refresh: true  # 动态刷新配置

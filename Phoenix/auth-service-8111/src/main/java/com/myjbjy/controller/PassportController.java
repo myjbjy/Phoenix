@@ -96,8 +96,6 @@ public class PassportController extends BaseInfoProperties {
 
     @PostMapping("logout")
     public GraceJSONResult logout(@RequestParam String userId) {
-        // 后端只需要清除用户的token信息即可，前端也需要清除相关的用户信息
-        redis.del(REDIS_USER_TOKEN + ":" + userId);
         return GraceJSONResult.ok();
     }
 }

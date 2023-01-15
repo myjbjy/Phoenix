@@ -8,10 +8,11 @@ import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Component;
 import sun.misc.BASE64Encoder;
 
-import javax.annotation.Resource;
 import javax.crypto.SecretKey;
 import java.util.Date;
 
@@ -20,12 +21,13 @@ import java.util.Date;
  */
 @Component
 @Slf4j
+@RefreshScope
 public class JWTUtils {
 
     public static final String AT = "@";
 
-    @Resource
-    private JWTProperties jwtProperties;
+    @Value("${jwt.key}")
+    public String JWT_KEY;
 
     public String createJWTWithPrefix(String body, Long expireTimes, String prefix) {
         if (expireTimes == null) {
@@ -51,7 +53,7 @@ public class JWTUtils {
 
     public String dealJWT(String body, Long expireTimes) {
 
-        String userKey = jwtProperties.getKey();
+        String userKey = JWT_KEY;
 
         // 1. 对秘钥进行base64编码
         String base64 = new BASE64Encoder().encode(userKey.getBytes());
@@ -82,7 +84,7 @@ public class JWTUtils {
 
     public String checkJWT(String pendingJWT) {
 
-        String userKey = jwtProperties.getKey();
+        String userKey = JWT_KEY;
 
         // 1. 对秘钥进行base64编码
         String base64 = new BASE64Encoder().encode(userKey.getBytes());
