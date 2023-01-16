@@ -23,6 +23,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.UUID;
 
+/**
+ * @author myj
+ */
 @RestController
 @RequestMapping("passport")
 @Slf4j

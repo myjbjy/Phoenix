@@ -8,4 +8,4 @@ spring:
         extension-configs:
           - data-id: jwt_config.yml
             group: DEFAULT_GROUP
-            refresh: true  # 动态刷新配置
+            refresh: true  # 动态刷新配置，要配合使用RefreshScope注解

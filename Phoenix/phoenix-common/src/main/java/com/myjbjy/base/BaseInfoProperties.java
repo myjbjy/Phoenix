@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
+/**
+ * @author myj
+ */
 public class BaseInfoProperties {
 
     @Autowired

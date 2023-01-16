@@ -8,6 +8,7 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class RedisOperator {
 	
-	@Autowired
+	@Resource
 	private StringRedisTemplate redisTemplate;
 
 	// Key（键），简单的key-value操作
@@ -31,7 +32,7 @@ public class RedisOperator {
 	 * @return
 	 */
 	public boolean keyIsExist(String key) {
-		return redisTemplate.hasKey(key);
+		return Boolean.TRUE.equals(redisTemplate.hasKey(key));
 	}
 
 	/**
@@ -40,7 +41,7 @@ public class RedisOperator {
 	 * @param key
 	 * @return
 	 */
-	public long ttl(String key) {
+	public Long ttl(String key) {
 		return redisTemplate.getExpire(key);
 	}
 	
@@ -60,7 +61,7 @@ public class RedisOperator {
 	 * @param key
 	 * @return
 	 */
-	public long increment(String key, long delta) {
+	public Long increment(String key, long delta) {
 		return redisTemplate.opsForValue().increment(key, delta);
 	}
 
@@ -99,7 +100,7 @@ public class RedisOperator {
 	 * @param key
 	 * @return
 	 */
-	public long decrement(String key, long delta) {
+	public Long decrement(String key, long delta) {
 		return redisTemplate.opsForValue().decrement(key, delta);
 	}
 
@@ -190,19 +191,14 @@ public class RedisOperator {
 //		nginx -> keepalive
 //		redis -> pipeline
 
-		List<Object> result = redisTemplate.executePipelined(new RedisCallback<String>() {
-			@Override
-			public String doInRedis(RedisConnection connection) throws DataAccessException {
-				StringRedisConnection src = (StringRedisConnection)connection;
+		return redisTemplate.executePipelined((RedisCallback<String>) connection -> {
+			StringRedisConnection src = (StringRedisConnection)connection;
 
-				for (String k : keys) {
-					src.get(k);
-				}
-				return null;
+			for (String k : keys) {
+				src.get(k);
 			}
+			return null;
 		});
-
-		return result;
 	}
 
 
@@ -259,7 +255,7 @@ public class RedisOperator {
 	 * @param value
 	 * @return 执行 LPUSH命令后，列表的长度。
 	 */
-	public long lpush(String key, String value) {
+	public Long lpush(String key, String value) {
 		return redisTemplate.opsForList().leftPush(key, value);
 	}
 
@@ -280,7 +276,7 @@ public class RedisOperator {
 	 * @param value
 	 * @return 执行 LPUSH命令后，列表的长度。
 	 */
-	public long rpush(String key, String value) {
+	public Long rpush(String key, String value) {
 		return redisTemplate.opsForList().rightPush(key, value);
 	}
 
