@@ -6,6 +6,7 @@ import com.myjbjy.grace.result.GraceJSONResult;
 import com.myjbjy.grace.result.ResponseStatusEnum;
 import com.myjbjy.pojo.Users;
 import com.myjbjy.pojo.bo.RegisterLoginBO;
+import com.myjbjy.pojo.vo.SaasUserVO;
 import com.myjbjy.pojo.vo.UsersVO;
 import com.myjbjy.service.UsersService;
 import com.myjbjy.utils.IPUtil;
@@ -31,6 +32,9 @@ import java.util.UUID;
 @RequestMapping("saas")
 @Slf4j
 public class SaasPassportController extends BaseInfoProperties {
+
+    @Resource
+    private UsersService usersService;
 
     @Resource
     private JWTUtils jwtUtils;
@@ -124,5 +128,80 @@ public class SaasPassportController extends BaseInfoProperties {
             }
         }
         return GraceJSONResult.ok(list);
+    }
+
+    /**
+     * 4. 手机端点击却登录，携带preToken与后端进行判断，如果校验ok则登录成功
+     * 注：如果使用websocket或者netty，可以在此直接通信H5进行页面的跳转
+     * @param userId
+     * @param qrToken
+     * @param preToken
+     * @return
+     */
+    @PostMapping("goQRLogin")
+    public GraceJSONResult goQRLogin(String userId,
+                                     String qrToken,
+                                     String preToken) {
+        String preTokenRedisArr = redis.get(SAAS_PLATFORM_LOGIN_TOKEN_READ + ":" + qrToken);
+
+        if (StringUtils.isNotBlank(preTokenRedisArr)) {
+            String preTokenRedis = preTokenRedisArr.split(",")[1];
+            if (preTokenRedis.equalsIgnoreCase(preToken)) {
+                // 根据用户id获得用户信息
+                Users hrUser = usersService.getById(userId);
+                if (hrUser == null) {
+                    return GraceJSONResult.errorCustom(ResponseStatusEnum.USER_NOT_EXIST_ERROR);
+                }
+
+                // 存入用户信息到redis中，因为H5在未登录的情况下，拿不到用户id，所以暂存用户信息到redis。
+                // 如果使用websocket是可以直接通信H5获得用户id，则无此问题
+                redis.set(REDIS_SAAS_USER_INFO + ":temp:" + preToken, new Gson().toJson(hrUser),5*60);
+            }
+        }
+        return GraceJSONResult.ok();
+    }
+
+    /**
+     * 5. 页面登录跳转
+     * @param preToken
+     * @return
+     */
+    @PostMapping("checkLogin")
+    public GraceJSONResult checkLogin(String preToken) {
+        if (StringUtils.isBlank(preToken)) {
+            return GraceJSONResult.ok("");
+        }
+
+        // 获得用户临时信息
+        String userJson = redis.get(REDIS_SAAS_USER_INFO + ":temp:" + preToken);
+
+        if (StringUtils.isBlank(userJson)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.USER_NOT_EXIST_ERROR);
+        }
+
+        // 确认执行登录后，生成saas用户的token，并且长期有效
+        String saasUserToken = jwtUtils.createJWTWithPrefix(userJson, TOKEN_SAAS_PREFIX);
+
+        // 存入用户信息，长期有效
+        redis.set(REDIS_SAAS_USER_INFO + ":" + saasUserToken, userJson);
+
+        return GraceJSONResult.ok(saasUserToken);
+    }
+
+    @GetMapping("info")
+    public GraceJSONResult info(String token) {
+
+        String userJson = redis.get(REDIS_SAAS_USER_INFO + ":" + token);
+        Users saasUser = new Gson().fromJson(userJson, Users.class);
+
+        SaasUserVO saasUserVO = new SaasUserVO();
+        BeanUtils.copyProperties(saasUser, saasUserVO);
+
+        return GraceJSONResult.ok(saasUserVO);
+    }
+
+    @PostMapping("logout")
+    public GraceJSONResult logout() {
+        return GraceJSONResult.ok();
     }
 }
