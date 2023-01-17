@@ -19,6 +19,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -95,5 +98,31 @@ public class SaasPassportController extends BaseInfoProperties {
 
         // 返回给手机端，app下次请求携带preToken
         return GraceJSONResult.ok(preToken);
+    }
+
+    /**
+     * 3. SAAS网页端每隔一段时间（3秒）定时查询qrToken是否被读取，用于页面的展示标记判断
+     * 前端处理：限制用户在页面不操作而频繁发起调用：【页面失效，请刷新后再执行扫描登录！】
+     * 注：如果使用websocket或者netty，可以在app扫描之后，在上一个接口，直接通信浏览器（H5）进行页面扫码的状态标记
+     * @param qrToken
+     * @return
+     */
+    @PostMapping("codeHasBeenRead")
+    public GraceJSONResult codeHasBeenRead(String qrToken) {
+
+        String readStr = redis.get(SAAS_PLATFORM_LOGIN_TOKEN_READ + ":" + qrToken);
+
+        List list = new ArrayList();
+
+        if (StringUtils.isNotBlank(readStr)) {
+            String[] readArr = readStr.split(",");
+            if (readArr.length >= 2) {
+                list.add(Integer.valueOf(readArr[0]));
+                list.add(readArr[1]);
+            } else {
+                list.add(0);
+            }
+        }
+        return GraceJSONResult.ok(list);
     }
 }
