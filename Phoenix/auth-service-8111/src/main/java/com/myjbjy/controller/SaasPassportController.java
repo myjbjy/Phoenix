@@ -29,6 +29,13 @@ import java.util.UUID;
 @Slf4j
 public class SaasPassportController extends BaseInfoProperties {
 
+    @Resource
+    private JWTUtils jwtUtils;
+
+    /**
+     * 1. 获得二维码token令牌
+     * @return
+     */
     @PostMapping("getQRToken")
     public GraceJSONResult getQRToken() {
         // 生成扫码登录的token
@@ -42,5 +49,51 @@ public class SaasPassportController extends BaseInfoProperties {
 
         //返回给前端，让前端下一次请求的时候需要带上qrToken
         return GraceJSONResult.ok(qrToken);
+    }
+
+    /**
+     * 2. 手机端进行扫码操作
+     * @param qrToken
+     * @return
+     */
+    @PostMapping("scanCode")
+    public GraceJSONResult scanCode(String qrToken, HttpServletRequest request) {
+
+        // 判空 - qrToken
+        if (StringUtils.isBlank(qrToken)){
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.FAILED);
+        }
+
+        // 从redis中获得并且判断qrToken是否有效
+        String redisQRToken = redis.get(SAAS_PLATFORM_LOGIN_TOKEN + ":" + qrToken);
+        if (!redisQRToken.equalsIgnoreCase(qrToken)){
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.FAILED);
+        }
+
+        // 从header中获得用户id和jwt令牌
+        String headerUserId = request.getHeader("appUserId");
+        String headerUserToken = request.getHeader("appUserToken");
+
+        // 判空 - headerUserId + headerUserToken
+        if (StringUtils.isBlank(headerUserId) || StringUtils.isBlank(headerUserToken)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.HR_TICKET_INVALID);
+        }
+
+        // 对JWT进行校验
+        String userJson = jwtUtils.checkJWT(headerUserToken.split("@")[1]);
+        if (StringUtils.isBlank(userJson)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.HR_TICKET_INVALID);
+        }
+
+        // 执行后续正常业务
+        // 生成预登录token
+        String preToken = UUID.randomUUID().toString();
+        redis.set(SAAS_PLATFORM_LOGIN_TOKEN + ":" + qrToken,  preToken, 5*60);
+
+        // redis写入标记，当前qrToken需要被读取并且失效覆盖，网页端标记二维码已被扫
+        redis.set(SAAS_PLATFORM_LOGIN_TOKEN_READ + ":" + qrToken, "1," + preToken, 5*60);
+
+        // 返回给手机端，app下次请求携带preToken
+        return GraceJSONResult.ok(preToken);
     }
 }
