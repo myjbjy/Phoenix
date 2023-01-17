@@ -16,4 +16,12 @@ spring:
         - id: authRoute
           uri: lb://auth-service
           predicates:
-            - Path=/a/**,/passport/**
+            - Path=/a/**,/passport/**,/saas/**
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedHeaders: "*"
+            allowedMethods: "*"
+            allowCredentials: true
+
