@@ -16,4 +16,6 @@ import java.util.List;
 @ConfigurationProperties(prefix = "exclude")
 public class ExcludeUrlProperties {
     private List<String> urls;
+
+    private List<String> ipLimitUrls;
 }
