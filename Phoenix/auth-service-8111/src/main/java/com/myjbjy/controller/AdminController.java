@@ -1,18 +1,18 @@
 package com.myjbjy.controller;
 
 import com.google.gson.Gson;
+import com.myjbjy.api.intercept.JWTCurrentUserInterceptor;
 import com.myjbjy.base.BaseInfoProperties;
 import com.myjbjy.grace.result.GraceJSONResult;
 import com.myjbjy.grace.result.ResponseStatusEnum;
 import com.myjbjy.pojo.Admin;
 import com.myjbjy.pojo.bo.AdminBO;
+import com.myjbjy.pojo.vo.AdminVO;
 import com.myjbjy.service.AdminService;
 import com.myjbjy.utils.JWTUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.BeanUtils;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -47,6 +47,16 @@ public class AdminController extends BaseInfoProperties {
                 TOKEN_ADMIN_PREFIX);
 
         return GraceJSONResult.ok(adminToken);
+    }
+
+    @GetMapping("info")
+    public GraceJSONResult info() {
+        Admin admin = JWTCurrentUserInterceptor.adminUser.get();
+
+        AdminVO adminVO = new AdminVO();
+        BeanUtils.copyProperties(admin, adminVO);
+
+        return GraceJSONResult.ok(adminVO);
     }
 
     @PostMapping("logout")

@@ -17,7 +17,7 @@ spring:
           uri: lb://user-service    # lb=负载均衡，会动态寻址
           # uri: http://192.168.1.111:7001
           predicates:     # 匹配断言，符合条件则放行（可以模糊匹配，或者精确匹配到某个具体的端口和名称）
-            - Path=/u/**
+            - Path=/u/**,/admininfo/**
         - id: authRoute
           uri: lb://auth-service
           predicates:
