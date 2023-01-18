@@ -114,7 +114,7 @@ public class BaseInfoProperties {
     public static final String PAYMENT_URL_GET_WXPAY_QRCODE = "http://172.17.172.127:9060/payment/getWXPayQRCode";		// prod
 //    String PAYMENT_URL_GET_WXPAY_QRCODE = "http://payment.t.mukewang.com/foodie-payment/payment/getWXPayQRCode";		// produce
 
-    // 慕聘网 - 支付后的回调通知api接口地址
+    // 支付后的回调通知api接口地址
 //    public static final String PAY_RETURN_URL = "http://192.168.1.6:6001/tradeOrder/notifyMerchantOrderPaid";             // dev
     public static final String PAY_RETURN_URL = "http://172.17.172.127:6001/tradeOrder/notifyMerchantOrderPaid";             // prod
 //    public static final String PAY_RETURN_URL = "http://api.t.mukewang.com/foodie-api/tradeOrder/notifyMerchantOrderPaid";        // prod

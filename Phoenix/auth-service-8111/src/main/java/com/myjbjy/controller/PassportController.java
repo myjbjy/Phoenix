@@ -2,7 +2,6 @@ package com.myjbjy.controller;
 
 import com.google.gson.Gson;
 import com.myjbjy.base.BaseInfoProperties;
-import com.myjbjy.exceptions.GraceException;
 import com.myjbjy.grace.result.GraceJSONResult;
 import com.myjbjy.grace.result.ResponseStatusEnum;
 import com.myjbjy.pojo.Users;
@@ -15,13 +14,11 @@ import com.myjbjy.utils.SMSUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.UUID;
 
 /**
  * @author myj
@@ -64,8 +61,7 @@ public class PassportController extends BaseInfoProperties {
     }
 
     @PostMapping("login")
-    public GraceJSONResult login(@Valid @RequestBody RegisterLoginBO registerLoginBO,
-                                 HttpServletRequest request) throws Exception {
+    public GraceJSONResult login(@Valid @RequestBody RegisterLoginBO registerLoginBO) {
         String mobile = registerLoginBO.getMobile();
         String code = registerLoginBO.getSmsCode();
 
