@@ -4,6 +4,7 @@ import java.util.List;
 
 /**
  * 
+ * @author myj
  * @Title: PagedGridResult.java
  * @Package com.myjbjy.utils
  * @Description: 用来返回分页Grid的数据格式

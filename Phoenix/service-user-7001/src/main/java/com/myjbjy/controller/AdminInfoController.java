@@ -1,6 +1,7 @@
 package com.myjbjy.controller;
 
 import com.myjbjy.base.BaseInfoProperties;
+import com.myjbjy.pojo.bo.ResetPwdBO;
 import com.myjbjy.service.AdminService;
 import com.myjbjy.grace.result.GraceJSONResult;
 import com.myjbjy.pojo.bo.CreateAdminBO;
@@ -27,6 +28,36 @@ public class AdminInfoController extends BaseInfoProperties {
     @PostMapping("create")
     public GraceJSONResult create(@Valid @RequestBody CreateAdminBO createAdminBO) {
         adminService.createAdmin(createAdminBO);
+        return GraceJSONResult.ok();
+    }
+
+    @PostMapping("list")
+    public GraceJSONResult list(String accountName,
+                                Integer page,
+                                Integer limit) {
+        if (page == null) {
+            page = 1;
+        }
+        if (limit == null) {
+            limit = 10;
+        }
+
+        return GraceJSONResult.ok(adminService.getAdminList(accountName, page, limit));
+    }
+
+    @PostMapping("delete")
+    public GraceJSONResult delete(String username) {
+        adminService.deleteAdmin(username);
+        return GraceJSONResult.ok();
+    }
+
+    @PostMapping("resetPwd")
+    public GraceJSONResult resetPwd(@RequestBody ResetPwdBO resetPwdBO) {
+
+        // resetPwdBO 校验
+        // adminService 重置密码
+
+        resetPwdBO.modifyPwd();
         return GraceJSONResult.ok();
     }
 }

@@ -45,6 +45,7 @@ public class SaasPassportController extends BaseInfoProperties {
      */
     @PostMapping("getQRToken")
     public GraceJSONResult getQRToken() {
+
         // 生成扫码登录的token
         String qrToken = UUID.randomUUID().toString();
 
