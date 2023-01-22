@@ -1,6 +1,7 @@
 package com.myjbjy.controller;
 
 import com.google.gson.Gson;
+import com.myjbjy.api.task.SMSTask;
 import com.myjbjy.base.BaseInfoProperties;
 import com.myjbjy.grace.result.GraceJSONResult;
 import com.myjbjy.grace.result.ResponseStatusEnum;
@@ -37,6 +38,9 @@ public class PassportController extends BaseInfoProperties {
     @Resource
     private UsersService usersService;
 
+    @Resource
+    private SMSTask smsTask;
+
     @PostMapping("getSMSCode")
     public GraceJSONResult getSMSCode(String mobile,
                                       HttpServletRequest request) throws Exception {
@@ -51,7 +55,8 @@ public class PassportController extends BaseInfoProperties {
         redis.setnx60s(MOBILE_SMSCODE + ":" + userIp, mobile);
 
         String code = (int) ((Math.random() * 9 + 1) * 100000) + "";
-        smsUtils.sendSMS(mobile, code);
+//        smsUtils.sendSMS(mobile, code);
+        smsTask.sendSMSTask();
         log.info("验证码为：{}", code);
 
         // 把验证码存入到redis，用于后续的注册登录进行校验

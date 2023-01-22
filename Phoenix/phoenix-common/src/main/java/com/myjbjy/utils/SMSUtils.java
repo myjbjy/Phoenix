@@ -10,12 +10,17 @@ import com.tencentcloudapi.sms.v20210111.models.SendSmsResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
+
+/**
+ * @author myj
+ */
 @Component
 public class SMSUtils {
-    @Autowired
+    @Resource
     private TencentCloudProperties tencentCloudProperties;
 
-    public void sendSMS(String phone, String code) throws Exception {
+    public void sendSMS(String phone, String code) {
         try {
             /* 必要步骤：
              * 实例化一个认证对象，入参需要传入腾讯云账户密钥对secretId，secretKey。

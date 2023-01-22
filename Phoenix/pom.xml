@@ -22,6 +22,8 @@
         <module>phoenix-pojo</module>
         <module>phoenix-api</module>
         <module>auth-service-8111</module>
+        <module>rabbit-comsumer</module>
+        <module>rabbit-producer</module>
     </modules>
 
     <properties>
