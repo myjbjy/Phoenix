@@ -17,6 +17,7 @@ import com.myjbjy.api.mq.RabbitMQSMSConfig;
 import com.myjbjy.utils.GsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.UUID;
 
 /**
  * @author myj
@@ -70,9 +72,30 @@ public class PassportController extends BaseInfoProperties {
         contentQO.setMobile(mobile);
         contentQO.setContent(code);
 
+        // 定义return回调
+        rabbitTemplate.setConfirmCallback(new RabbitTemplate.ConfirmCallback() {
+            /**
+             * 回调函数
+             * @param correlationData 相关性数据
+             * @param ack 交换机是否成功接收到消息，true：成功
+             * @param cause 失败的原因
+             */
+            @Override
+            public void confirm(CorrelationData correlationData, boolean ack, String cause) {
+                log.info("进入confirm");
+                log.info("correlationData：{}", correlationData.getId());
+                if (ack) {
+                    log.info("交换机成功接收到消息~~ {}", cause);
+                } else {
+                    log.info("交换机接收消息失败~~失败原因： {}", cause);
+                }
+            }
+        });
+
         rabbitTemplate.convertAndSend(RabbitMQSMSConfig.SMS_EXCHANGE,
                     RabbitMQSMSConfig.ROUTING_KEY_SMS_SEND_LOGIN,
-                    GsonUtils.object2String(contentQO));
+                    GsonUtils.object2String(contentQO),
+                new CorrelationData(UUID.randomUUID().toString()));
         log.info("验证码为：{}", code);
 
         // 把验证码存入到redis，用于后续的注册登录进行校验

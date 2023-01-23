@@ -27,7 +27,7 @@ spring:
     host: 192.168.1.122
     port: 5672
     virtual-host: /
-    username: imooc
-    password: imooc
+    username: myjbjy
+    password: myjbjy
     publisher-confirm-type: correlated
     publisher-returns: true
