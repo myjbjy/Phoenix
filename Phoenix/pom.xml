@@ -24,6 +24,7 @@
         <module>auth-service-8111</module>
         <module>rabbit-comsumer</module>
         <module>rabbit-producer</module>
+        <module>server-resource-4001</module>
     </modules>
 
     <properties>

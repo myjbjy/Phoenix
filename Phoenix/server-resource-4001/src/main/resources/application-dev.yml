@@ -2,7 +2,7 @@ spring:
   datasource:                                     # 数据源的相关配置
     type: com.zaxxer.hikari.HikariDataSource      # 数据源的类型，可以更改为其他的数据源配置，比如druid
     driver-class-name: com.mysql.cj.jdbc.Driver      # mysql/MariaDB 的数据库驱动类名称
-    url: jdbc:mysql://192.168.1.121:3306/dev?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    url: jdbc:mysql://192.168.1.121:3306/myjbjy-dev?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: root
     password: myjbjy
     hikari:
@@ -18,16 +18,18 @@ spring:
     nacos:
       discovery:
         server-addr: 192.168.1.121:8848
-  redis:
-    host: 192.168.1.121
-    port: 6379
-    database: 0
-    password: myjbjy
   rabbitmq:
     host: 192.168.1.122
     port: 5672
     virtual-host: /
-    username: imooc
-    password: imooc
-    publisher-confirm-type: correlated
-    publisher-returns: true
+    username: myjbjy
+    password: ENC(UnoiHtPp84zMjjwLoJe/Kg==)
+    listener:
+      simple:
+        acknowledge-mode: manual  # 手动ack确认
+#        prefetch: 2  # 每次每个消费者从mq中拉去的消息的数量，直到手动ack确认之后，才会拉去下个消息
+
+jasypt:
+  encryptor:
+    algorithm: PBEWithMD5AndDES
+    password: fengjianyingyue
