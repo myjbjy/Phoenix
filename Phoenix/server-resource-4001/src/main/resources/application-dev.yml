@@ -28,8 +28,7 @@ spring:
       simple:
         acknowledge-mode: manual  # 手动ack确认
 #        prefetch: 2  # 每次每个消费者从mq中拉去的消息的数量，直到手动ack确认之后，才会拉去下个消息
-
 jasypt:
   encryptor:
     algorithm: PBEWithMD5AndDES
-    password: fengjianyingyue
+    password: myjbjy
