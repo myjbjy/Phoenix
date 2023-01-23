@@ -17,6 +17,7 @@ import com.myjbjy.api.mq.RabbitMQSMSConfig;
 import com.myjbjy.utils.GsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.amqp.core.ReturnedMessage;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
@@ -89,6 +90,15 @@ public class PassportController extends BaseInfoProperties {
                 } else {
                     log.info("交换机接收消息失败~~失败原因： {}", cause);
                 }
+            }
+        });
+
+        // 定义return回调
+        rabbitTemplate.setReturnsCallback(new RabbitTemplate.ReturnsCallback() {
+            @Override
+            public void returnedMessage(ReturnedMessage returned) {
+                log.info("进入return");
+                log.info(returned.toString());
             }
         });
 
