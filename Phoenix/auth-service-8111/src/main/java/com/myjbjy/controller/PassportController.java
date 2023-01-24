@@ -102,10 +102,18 @@ public class PassportController extends BaseInfoProperties {
             }
         });
 
-        rabbitTemplate.convertAndSend(RabbitMQSMSConfig.SMS_EXCHANGE,
+        for (int i = 0; i < 10; i++) {
+            rabbitTemplate.convertAndSend(RabbitMQSMSConfig.SMS_EXCHANGE,
                     RabbitMQSMSConfig.ROUTING_KEY_SMS_SEND_LOGIN,
                     GsonUtils.object2String(contentQO),
-                new CorrelationData(UUID.randomUUID().toString()));
+                    new CorrelationData(UUID.randomUUID().toString()));
+        }
+
+//        rabbitTemplate.convertAndSend(RabbitMQSMSConfig.SMS_EXCHANGE,
+//                    RabbitMQSMSConfig.ROUTING_KEY_SMS_SEND_LOGIN,
+//                    GsonUtils.object2String(contentQO),
+//                new CorrelationData(UUID.randomUUID().toString()));
+
         log.info("验证码为：{}", code);
 
         // 把验证码存入到redis，用于后续的注册登录进行校验
