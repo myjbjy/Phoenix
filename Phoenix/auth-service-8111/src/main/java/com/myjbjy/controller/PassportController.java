@@ -17,6 +17,9 @@ import com.myjbjy.api.mq.RabbitMQSMSConfig;
 import com.myjbjy.utils.GsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.amqp.AmqpException;
+import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.amqp.core.ReturnedMessage;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -102,17 +105,33 @@ public class PassportController extends BaseInfoProperties {
             }
         });
 
-        for (int i = 0; i < 10; i++) {
-            rabbitTemplate.convertAndSend(RabbitMQSMSConfig.SMS_EXCHANGE,
-                    RabbitMQSMSConfig.ROUTING_KEY_SMS_SEND_LOGIN,
-                    GsonUtils.object2String(contentQO),
-                    new CorrelationData(UUID.randomUUID().toString()));
-        }
+//        for (int i = 0; i < 10; i++) {
+//            rabbitTemplate.convertAndSend(RabbitMQSMSConfig.SMS_EXCHANGE,
+//                    RabbitMQSMSConfig.ROUTING_KEY_SMS_SEND_LOGIN,
+//                    GsonUtils.object2String(contentQO),
+//                    new CorrelationData(UUID.randomUUID().toString()));
+//        }
 
 //        rabbitTemplate.convertAndSend(RabbitMQSMSConfig.SMS_EXCHANGE,
 //                    RabbitMQSMSConfig.ROUTING_KEY_SMS_SEND_LOGIN,
 //                    GsonUtils.object2String(contentQO),
 //                new CorrelationData(UUID.randomUUID().toString()));
+
+        // 消息属性处理的类对象（对当前需要的超时ttl进行参数属性的设置）
+//        MessagePostProcessor postProcessor = message -> {
+//            message.getMessageProperties()
+//                    .setExpiration(String.valueOf(10*1000));
+//            return message;
+//        };
+        rabbitTemplate.convertAndSend(RabbitMQSMSConfig.SMS_EXCHANGE,
+                RabbitMQSMSConfig.ROUTING_KEY_SMS_SEND_LOGIN,
+                GsonUtils.object2String(contentQO),
+                message -> {
+                    message.getMessageProperties()
+                        .setExpiration(String.valueOf(30*1000));
+                    return message;
+                },
+                new CorrelationData(UUID.randomUUID().toString()));
 
         log.info("验证码为：{}", code);
 

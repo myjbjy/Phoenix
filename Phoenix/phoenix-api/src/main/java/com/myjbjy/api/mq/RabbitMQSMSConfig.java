@@ -35,6 +35,7 @@ public class RabbitMQSMSConfig {
 //        return new Queue(SMS_QUEUE);
         return QueueBuilder
                 .durable(SMS_QUEUE)
+//                .withArgument("x-message-ttl", 30*1000)
                 .build();
     }
 
