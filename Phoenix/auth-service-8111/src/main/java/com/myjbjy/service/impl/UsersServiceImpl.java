@@ -2,6 +2,7 @@ package com.myjbjy.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.myjbjy.api.feign.WorkMicroServiceFeign;
 import com.myjbjy.enums.Sex;
 import com.myjbjy.enums.ShowWhichName;
 import com.myjbjy.mapper.UsersMapper;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -27,8 +29,11 @@ import java.time.LocalDateTime;
 @Service
 public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements UsersService {
 
-    @Autowired
+    @Resource
     private UsersMapper usersMapper;
+
+    @Resource
+    private WorkMicroServiceFeign workMicroServiceFeign;
 
     private static final String USER_FACE1 = "http://122.152.205.72:88/group1/M00/00/05/CpoxxF6ZUySASMbOAABBAXhjY0Y649.png";
 
@@ -86,6 +91,9 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         user.setUpdatedTime(LocalDateTime.now());
 
         usersMapper.insert(user);
+
+        // 发起远程调用，初始化用户简历，新增一条空记录
+        workMicroServiceFeign.init(user.getId());
 
         return user;
     }

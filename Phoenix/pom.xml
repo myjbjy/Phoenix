@@ -25,6 +25,7 @@
         <module>rabbit-comsumer</module>
         <module>rabbit-producer</module>
         <module>server-resource-4001</module>
+        <module>service-work-3001</module>
     </modules>
 
     <properties>
