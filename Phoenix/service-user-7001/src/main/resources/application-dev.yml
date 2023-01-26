@@ -18,3 +18,8 @@ spring:
     nacos:
       discovery:
         server-addr: 192.168.1.121:8848
+    loadbalancer:
+      nacos:
+        enabled: true   # 开启基于nacos规则的负载均衡
+        #        IRule
+        #        return new NacosRule();
