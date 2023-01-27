@@ -44,7 +44,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
                 .eq("mobile", mobile));
     }
 
-    @Autowired
+    @Resource
     public RabbitTemplate rabbitTemplate;
 
     @Transactional(rollbackForClassName = {"Users"})
