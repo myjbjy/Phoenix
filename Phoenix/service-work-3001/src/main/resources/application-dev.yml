@@ -2,7 +2,7 @@ spring:
   datasource:                                     # 数据源的相关配置
     type: com.zaxxer.hikari.HikariDataSource      # 数据源的类型，可以更改为其他的数据源配置，比如druid
     driver-class-name: com.mysql.cj.jdbc.Driver      # mysql/MariaDB 的数据库驱动类名称
-    url: jdbc:mysql://192.168.1.121:3306/imooc-hire-dev?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    url: jdbc:mysql://192.168.1.121:3306/dev?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
     username: root
     password: imooc
     hikari:
@@ -22,7 +22,7 @@ spring:
     host: 192.168.1.122
     port: 5672
     virtual-host: /
-    username: imooc
+    username: myjbjy
     password: ENC(UnoiHtPp84zMjjwLoJe/Kg==)
     listener:
       simple:
@@ -31,17 +31,14 @@ spring:
 jasypt:
   encryptor:
     algorithm: PBEWithMD5AndDES
-    password: fengjianyingyue
-
-
-
+    password: myjbjy
 
 seata:
   enabled: true
-  tx-service-group: imooc_tx_group
+  tx-service-group: myjbjy_tx_group
   service:
     vgroup-mapping:
-      imooc_tx_group: SEATA_GROUP
+      myjbjy_tx_group: SEATA_GROUP
     grouplist:
       SEATA_GROUP: 192.168.1.122:8091
   config:

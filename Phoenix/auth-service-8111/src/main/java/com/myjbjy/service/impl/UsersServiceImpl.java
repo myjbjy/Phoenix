@@ -14,6 +14,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import io.seata.spring.annotation.GlobalTransactional;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
@@ -55,8 +56,8 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         return createUsers(mobile);
     }
 
-    @Transactional
-//    @GlobalTransactional
+//    @Transactional
+    @GlobalTransactional
     @Override
     public Users createUsers(String mobile) {
 

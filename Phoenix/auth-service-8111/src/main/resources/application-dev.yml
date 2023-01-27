@@ -31,3 +31,21 @@ spring:
     password: myjbjy
     publisher-confirm-type: correlated
     publisher-returns: true
+seata:
+  enabled: true
+  tx-service-group: myjbjy_tx_group
+  service:
+    vgroup-mapping:
+      myjbjy_tx_group: SEATA_GROUP
+    grouplist:
+      SEATA_GROUP: 192.168.1.122:8091
+  config:
+    nacos:
+      server-addr: 192.168.1.121:8848
+      username: nacos
+      password: nacos
+  registry:
+    nacos:
+      server-addr: 192.168.1.121:8848
+      username: nacos
+      password: nacos
