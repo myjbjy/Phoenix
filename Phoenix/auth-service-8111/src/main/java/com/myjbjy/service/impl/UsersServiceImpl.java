@@ -5,16 +5,22 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.myjbjy.api.feign.WorkMicroServiceFeign;
 import com.myjbjy.enums.Sex;
 import com.myjbjy.enums.ShowWhichName;
+import com.myjbjy.exceptions.GraceException;
+import com.myjbjy.grace.result.GraceJSONResult;
+import com.myjbjy.grace.result.ResponseStatusEnum;
 import com.myjbjy.mapper.UsersMapper;
 import com.myjbjy.pojo.Users;
 import com.myjbjy.service.UsersService;
 import com.myjbjy.utils.DesensitizationUtil;
 import com.myjbjy.utils.LocalDateUtils;
+import io.seata.core.context.RootContext;
+import io.seata.core.exception.TransactionException;
+import io.seata.spring.annotation.GlobalTransactional;
+import io.seata.tm.api.GlobalTransactionContext;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import io.seata.spring.annotation.GlobalTransactional;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
@@ -56,7 +62,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         return createUsers(mobile);
     }
 
-//    @Transactional
+    //    @Transactional
     @GlobalTransactional
     @Override
     public Users createUsers(String mobile) {
@@ -94,7 +100,23 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
         usersMapper.insert(user);
 
         // 发起远程调用，初始化用户简历，新增一条空记录
-        workMicroServiceFeign.init(user.getId());
+        GraceJSONResult graceJSONResult = workMicroServiceFeign.init(user.getId());
+        if (graceJSONResult.getStatus() != 200) {
+            // 如果调用状态不是200，则手动回滚全局事务
+            String xid = RootContext.getXID();
+            if (StringUtils.isNotBlank(xid)) {
+                try {
+                    GlobalTransactionContext.reload(xid).rollback();
+                } catch (TransactionException e) {
+                    e.printStackTrace();
+                } finally {
+                    GraceException.display(ResponseStatusEnum.USER_REGISTER_ERROR);
+                }
+            }
+        }
+
+        // 模拟除零异常
+//        int a = 1 / 0;
 
         return user;
     }

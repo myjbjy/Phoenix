@@ -22,6 +22,14 @@ import java.util.Map;
  */
 @ControllerAdvice
 public class GraceExceptionHandler {
+
+//    @ExceptionHandler(ArithmeticException.class)
+//    @ResponseBody
+//    public GraceJSONResult returnArithmeticException(ArithmeticException e) {
+//        e.printStackTrace();
+//        return GraceJSONResult.errorMsg(e.getMessage());
+//    }
+
     @ExceptionHandler(MyCustomException.class)
     @ResponseBody
     public GraceJSONResult returnMyCustomException(MyCustomException e) {
