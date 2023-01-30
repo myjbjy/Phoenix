@@ -18,5 +18,5 @@ mybatis-plus:
   global-config:
     db-config:
       id-type: assign_id
-      update-strategy: not_empty
+      update-strategy: not_empty # 非空判断(只对字符串类型字段,其他类型字段依然为非NULL判断)
     banner: false

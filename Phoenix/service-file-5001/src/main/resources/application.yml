@@ -1,0 +1,16 @@
+server:
+  port: 5001
+  tomcat:
+    uri-encoding: UTF-8
+#    max-swallow-size: -1
+
+spring:
+  application:
+    name: file-service
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      max-file-size: 500KB      # 文件上传大小的限制，设置的最大值，不能超过，否则会报错
+      max-request-size: 500KB   # 文件最大请求限制，用于批量上传
+
