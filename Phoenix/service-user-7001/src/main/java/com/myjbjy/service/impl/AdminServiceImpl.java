@@ -8,6 +8,7 @@ import com.myjbjy.grace.result.ResponseStatusEnum;
 import com.myjbjy.mapper.AdminMapper;
 import com.myjbjy.pojo.Admin;
 import com.myjbjy.pojo.bo.CreateAdminBO;
+import com.myjbjy.pojo.bo.UpdateAdminBO;
 import com.myjbjy.service.AdminService;
 import com.myjbjy.utils.MD5Utils;
 import com.myjbjy.utils.PagedGridResult;
@@ -100,5 +101,14 @@ public class AdminServiceImpl extends BaseInfoProperties implements AdminService
     @Override
     public Admin getById(String adminId) {
         return adminMapper.selectById(adminId);
+    }
+
+    @Transactional(rollbackForClassName = "Exception.class")
+    @Override
+    public void updateAdmin(UpdateAdminBO adminBO) {
+        Admin admin = new Admin();
+        BeanUtils.copyProperties(adminBO, admin);
+        admin.setUpdatedTime(LocalDateTime.now());
+        adminMapper.updateById(admin);
     }
 }

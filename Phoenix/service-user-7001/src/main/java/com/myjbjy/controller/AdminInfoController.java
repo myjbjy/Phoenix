@@ -1,11 +1,16 @@
 package com.myjbjy.controller;
 
+import com.myjbjy.api.intercept.JWTCurrentUserInterceptor;
 import com.myjbjy.base.BaseInfoProperties;
+import com.myjbjy.pojo.Admin;
 import com.myjbjy.pojo.bo.ResetPwdBO;
+import com.myjbjy.pojo.bo.UpdateAdminBO;
+import com.myjbjy.pojo.vo.AdminInfoVO;
 import com.myjbjy.service.AdminService;
 import com.myjbjy.grace.result.GraceJSONResult;
 import com.myjbjy.pojo.bo.CreateAdminBO;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,6 +63,28 @@ public class AdminInfoController extends BaseInfoProperties {
         // adminService 重置密码
 
         resetPwdBO.modifyPwd();
+        return GraceJSONResult.ok();
+    }
+
+    @PostMapping("myInfo")
+    public GraceJSONResult myInfo() {
+        Admin admin = JWTCurrentUserInterceptor.adminUser.get();
+
+        Admin adminInfo = adminService.getById(admin.getId());
+
+        AdminInfoVO adminInfoVO = new AdminInfoVO();
+        BeanUtils.copyProperties(adminInfo, adminInfoVO);
+
+        return GraceJSONResult.ok(adminInfoVO);
+    }
+
+    @PostMapping("updateMyInfo")
+    public GraceJSONResult updateMyInfo(@RequestBody @Valid UpdateAdminBO adminBO) {
+        Admin admin = JWTCurrentUserInterceptor.adminUser.get();
+
+        adminBO.setId(admin.getId());
+        adminService.updateAdmin(adminBO);
+
         return GraceJSONResult.ok();
     }
 }

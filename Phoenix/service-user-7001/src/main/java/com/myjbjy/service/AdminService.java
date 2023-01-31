@@ -2,6 +2,7 @@ package com.myjbjy.service;
 
 import com.myjbjy.pojo.Admin;
 import com.myjbjy.pojo.bo.CreateAdminBO;
+import com.myjbjy.pojo.bo.UpdateAdminBO;
 import com.myjbjy.utils.PagedGridResult;
 
 /**
@@ -43,4 +44,10 @@ public interface AdminService {
      * @return
      */
     public Admin getById(String adminId);
+
+    /**
+     * 更新admin信息
+     * @param adminBO
+     */
+    public void updateAdmin(UpdateAdminBO adminBO);
 }
