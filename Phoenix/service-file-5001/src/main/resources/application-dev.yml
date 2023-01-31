@@ -3,3 +3,10 @@ spring:
     nacos:
       discovery:
         server-addr: 192.168.1.121:8848
+# MinIO 配置
+minio:
+  endpoint: http://192.168.1.122:9000      # MinIO服务地址
+  fileHost: http://192.168.1.122:9000      # 文件地址host
+  bucketName: myjbjy                        # 存储桶bucket名称
+  accessKey: myjbjy                         # 用户名
+  secretKey: myjbjy123456                   # 密码

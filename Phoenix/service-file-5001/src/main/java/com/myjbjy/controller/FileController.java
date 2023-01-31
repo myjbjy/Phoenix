@@ -1,12 +1,17 @@
 package com.myjbjy.controller;
 
+import com.myjbjy.config.MinIOConfig;
 import com.myjbjy.grace.result.GraceJSONResult;
+import com.myjbjy.grace.result.ResponseStatusEnum;
+import com.myjbjy.utils.MinIOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 
@@ -18,6 +23,34 @@ import java.io.File;
 public class FileController {
 
     public static final String HOST = "http://192.168.1.6:8000/";
+
+    @Resource
+    private MinIOConfig minIOConfig;
+
+    @PostMapping("uploadFace")
+    public GraceJSONResult uploadFace(@RequestParam("file") MultipartFile file,
+                                       @RequestParam("userId") String userId
+                                      ) throws Exception {
+        if (StringUtils.isBlank(userId)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.FILE_UPLOAD_FAILD);
+        }
+
+        // 获得文件原始名称
+        String filename = file.getOriginalFilename();
+        if (StringUtils.isBlank(filename)) {
+            return GraceJSONResult.errorCustom(ResponseStatusEnum.FILE_UPLOAD_NULL_ERROR);
+        }
+
+        filename = userId + File.separator + filename;
+        MinIOUtils.uploadFile(minIOConfig.getBucketName(), filename, file.getInputStream());
+
+        String imageUrl = minIOConfig.getFileHost()
+                + "/"
+                + minIOConfig.getBucketName()
+                + "/"
+                + filename;
+        return GraceJSONResult.ok(imageUrl);
+    }
 
     @PostMapping("uploadFace1")
     public GraceJSONResult uploadFace1(@RequestParam("file") MultipartFile file,
