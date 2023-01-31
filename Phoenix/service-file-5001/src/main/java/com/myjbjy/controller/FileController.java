@@ -17,6 +17,8 @@ import java.io.File;
 @RequestMapping("file")
 public class FileController {
 
+    public static final String HOST = "http://192.168.1.6:8000/";
+
     @PostMapping("uploadFace1")
     public GraceJSONResult uploadFace1(@RequestParam("file") MultipartFile file,
                                        @RequestParam("userId") String userId,
@@ -45,6 +47,9 @@ public class FileController {
         // 将内存中的文件数据写入到磁盘
         file.transferTo(newFile);
 
-        return GraceJSONResult.ok();
+        // 生成web可以被访问的url地址
+        String userFaceUrl = HOST + "static/face/" + newFileName;
+
+        return GraceJSONResult.ok(userFaceUrl);
     }
 }

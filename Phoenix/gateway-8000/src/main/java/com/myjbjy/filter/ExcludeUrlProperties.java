@@ -18,4 +18,6 @@ public class ExcludeUrlProperties {
     private List<String> urls;
 
     private List<String> ipLimitUrls;
+
+    private String fileStart;
 }

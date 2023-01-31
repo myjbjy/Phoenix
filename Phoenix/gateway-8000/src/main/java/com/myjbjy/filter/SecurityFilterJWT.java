@@ -70,6 +70,14 @@ public class SecurityFilterJWT extends BaseInfoProperties implements GlobalFilte
             }
         }
 
+        String fileStart = excludeUrlProperties.getFileStart();
+        if (StringUtils.isNotBlank(fileStart)) {
+            if (antPathMatcher.matchStart(fileStart, url)) {
+                // 如果匹配到，则直接放行
+                return chain.filter(exchange);
+            }
+        }
+
         // 判断header中是否有token，对用户请求进行判断拦截
         HttpHeaders headers = exchange.getRequest().getHeaders();
         String userToken = headers.getFirst(HEADER_USER_TOKEN);
